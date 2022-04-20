@@ -131,7 +131,15 @@ namespace ShopSiteApp.Areas.Identity.Pages.Account
                     {
                         await _roleManager.CreateAsync(new IdentityRole(Diger.Role_Birey));
                     }
-                    await _userManager.AddToRoleAsync(user, Diger.Role_Admin);
+                    if(user.Role==null)
+                    {
+                        await _userManager.AddToRoleAsync(user, Diger.Role_User);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, user.Role);
+
+                    }
                     //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     //var callbackUrl = Url.Page(
@@ -149,8 +157,16 @@ namespace ShopSiteApp.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        if(user.Role==null)
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            return LocalRedirect(returnUrl);
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "User", new { Area = "Admin" });
+                        }
+                        
                     }
                 }
                 foreach (var error in result.Errors)

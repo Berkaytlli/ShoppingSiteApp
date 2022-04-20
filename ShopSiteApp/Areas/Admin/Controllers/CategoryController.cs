@@ -2,22 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NToastNotify;
 using ShopSiteApp.Data;
 using ShopSiteApp.Models;
 
 namespace ShopSiteApp.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = Diger.Role_Admin)]
     public class CategoryController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public CategoryController(ApplicationDbContext context)
+        private readonly IToastNotification _toast;
+        public CategoryController(ApplicationDbContext context, IToastNotification toast)
         {
             _context = context;
+            _toast = toast;
         }
 
         // GET: Admin/Category
@@ -61,6 +65,7 @@ namespace ShopSiteApp.Areas.Admin.Controllers
             {
                 _context.Add(category);
                 await _context.SaveChangesAsync();
+                _toast.AddSuccessToastMessage("Ekleme işlemi başarılı...");
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
@@ -100,6 +105,7 @@ namespace ShopSiteApp.Areas.Admin.Controllers
                 {
                     _context.Update(category);
                     await _context.SaveChangesAsync();
+                    _toast.AddSuccessToastMessage("Güncelleme işlemi başarılı...");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
